@@ -1,5 +1,6 @@
 from flask import Flask, request
-import datetime
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import pytz
 import json
 
@@ -50,7 +51,21 @@ def get_time():
             return f"Could not process time information. {e}", 404
 
 
-#TODO Add a route that displays the current time for all US timezones.
+@app.route('/time-difference', methods=['GET', 'POST','PUT'])
+def time_diff():
+    try:
+        if request.args:
+            h = request.args.get('here')
+            t = request.args.get('there')
+
+        u = pytz.timezone('utc').localize(datetime.utcnow())
+        here = u.astimezone(pytz.timezone(h)).replace(tzinfo=None)
+        there = u.astimezone(pytz.timezone(t)).replace(tzinfo=None)
+
+        offset = relativedelta(here, there) 
+        return json.dumps(offset.hours)
+    except Exception as e:
+            return f"Could not process time information. {e}", 404
 
 
 if __name__ == "__main__":

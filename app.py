@@ -49,8 +49,29 @@ def get_time():
         except Exception as e:
             return f"Could not process time information. {e}", 404
 
+@app.route('/time', methods=['GET'])
+def all_time():
+    timezones = ['America/Los+Angeles', 'America/Denver', 'America/Chicago', 'America/New+York']
+    
+    def _get_local_time():
+        local_time = datetime.datetime.now()
+        time_string = local_time.strftime("%H:%M:%S")
+        return time_string
 
-#TODO Add a route that displays the current time for all US timezones.
+    for time in timezones:
+        try:
+            time = time.replace(" ", "_")
+        except Exception:
+            return f"Could not process timezone: {time}", 404
+        try:
+            local_time = datetime.datetime.now()
+            tz_time = pytz.timezone(time)
+            tz_localized = local_time.astimezone(tz_time)
+            time_string = tz_localized.strftime("%H:%M:%S")
+            return json.dumps({f"{time}": time_string})
+        
+        except Exception:
+            return 404
 
 
 if __name__ == "__main__":

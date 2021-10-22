@@ -50,7 +50,20 @@ def get_time():
             return f"Could not process time information. {e}", 404
 
 
-#TODO Add a route that displays the current time for all US timezones.
+@app.route('/time/<tz>', methods=['GET'])
+def get_time_tz(tz):
+    if request.args:
+        tz = request.args.get('tz')
+        try:
+            tz = tz.replace(" ", "_")
+        except Exception:
+            return f"Could not process timezone: {tz}", 404
+        try:
+            local_time = datetime.datetime.now()
+            tz_time = pytz.timezone(tz)
+        
+        except Exception:
+            return f"Could not process timezone: {tz}", 404
 
 
 if __name__ == "__main__":
